@@ -1,0 +1,82 @@
+﻿
+@{
+    ViewBag.Title = "Index";
+}
+
+@section Header
+{
+    <link href="~/Content/DataTables-1.9.4/extras/Scroller/media/css/dataTables.scroller.css" rel="stylesheet" type="text/css" />
+    <link href="~/Content/DataTables-1.9.4/media/css/jquery.dataTables.css" rel="stylesheet" type="text/css" />
+}
+
+<!------------------ UNIT TABLE ---------------------->
+<!-- The table that has all of the unit information -->
+<div class="row" style="margin-top:20px; height:200px;">
+    <div class="col-lg-8 col-lg-offset-2">
+        <table id="unitTableData" class="table table-hover">
+            <thead>
+                <tr>
+                    <!--<th style="display:none">ID</th>-->
+                    <th>ID</th>
+                    <th>CNumber</th>
+                    <th>Serial Number</th>
+                    <th>Label</th>
+                    <th>IP Address</th>
+                    <th>Build</th>
+                    <th>City, State</th>
+                    <th>Location Label</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+</div>
+
+@section PageScripts
+{
+    <script src="~/Scripts/DataTables-1.9.4/media/js/jquery.dataTables.min.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+
+            var oTable = $('#unitTableData').dataTable({
+                "bServerSide": true,    // All processing will be done in our controller
+                "sAjaxSource": "/Home/UnitListHandler",  // Where our controller is
+                "bProcessing": false,
+                //"iDisplayLength": 7,   // Have 50 units at a time
+                //"bLengthChange": false,
+                "sScrollY": "300px",    // Fix the height of the table
+                "sDom": "rtiS",        // Dynamically request the content
+                //"bDeferRender": true,
+                "oScroller": {          // Let the user know that data is loading
+                    "loadingIndicator": true
+                },
+                "aoColumns": [              // Per-column settings and alignments
+                    { "bVisible": false },  // Primary key "id"
+                    {},                    // C Number
+                    {},                     // Serial number
+                    {},                     // Label
+                    { "bVisible": false },  // IP Address
+                    { sWidth: '20%', sClass: "alignCenter" },  // Build
+                    {},                      // Location
+                    { "bVisible": false }   // Location label
+                ]
+            });
+
+            var update_size = function () {
+                $(oTable).css({ width: $(oTable).parent().width() });
+                oTable.fnAdjustColumnSizing();
+            }
+
+            $(window).resize(function () {
+                clearTimeout(window.refresh_size);
+                window.refresh_size = setTimeout(function () { update_size(); }, 250);
+            });
+
+            $('#unit-search').keyup(function () {
+                oTable.fnFilter($(this).val());
+                oTable.fnDraw();
+            })
+        });
+
+    </script>
+}
